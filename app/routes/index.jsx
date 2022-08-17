@@ -1,22 +1,19 @@
-import {View, Text, StyleSheet, SafeAreaView} from 'react-native';
 import React from 'react';
+import {createStackNavigator} from '@react-navigation/stack';
+import Todo from '../screens/Todo';
+import TodoCreate from '../screens/TodoCreate';
+import TodoEdit from '../screens/TodoEdit';
+
+const Stack = createStackNavigator();
 
 const Routes = () => {
   return (
-    <SafeAreaView style={styles.container}>
-      <View>
-        <Text>Todo Routes</Text>
-      </View>
-    </SafeAreaView>
+    <Stack.Navigator>
+      <Stack.Screen name="Todo" component={Todo} />
+      <Stack.Screen name="TodoCreate" component={TodoCreate} />
+      <Stack.Screen name="TodoEdit" component={TodoEdit} />
+    </Stack.Navigator>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
 
 export default Routes;

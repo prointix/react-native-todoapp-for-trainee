@@ -4,9 +4,7 @@ import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
 const Todo = () => {
   return (
     <SafeAreaView style={styles.container}>
-      <View>
-        <Text>Todo </Text>
-      </View>
+      <View></View>
     </SafeAreaView>
   );
 };
@@ -16,6 +14,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  header: {
+    flexDirection: 'row',
   },
 });
 
