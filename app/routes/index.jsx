@@ -8,7 +8,7 @@ const Stack = createStackNavigator();
 
 const Routes = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{header: () => null}}>
       <Stack.Screen name="Todo" component={Todo} />
       <Stack.Screen name="TodoCreate" component={TodoCreate} />
       <Stack.Screen name="TodoEdit" component={TodoEdit} />
