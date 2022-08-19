@@ -1,38 +1,78 @@
 import React, {useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View, FlatList} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  FlatList,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Fontisto';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTodos} from '../../services/todo';
 
 const Todo = ({navigation}) => {
-  const {todos, setPage} = useTodos(1);
+  const {
+    todos,
+    getAllTodos,
+    setIsLoading,
+    isLoading,
+    updateTodo,
+    getMoreTodos,
+  } = useTodos(1);
   const [tab, setTab] = useState('TODOs'); // todos or done
   const doneTodo = todos.filter(status => status.completed);
   const notDoneTodo = todos.filter(status => !status.completed);
+  var counter = 1;
 
   const onDonePressHandler = () => {
     setTab('DONE');
+    setIsLoading(true);
+    getAllTodos();
+    setIsLoading(false);
   };
 
   const onTodoPressHandler = () => {
     setTab('TODOs');
+    setIsLoading(true);
+    getAllTodos();
+    setIsLoading(false);
+  };
+
+  const onIconClicked = (id, title, subTitle, completed) => {
+    updateTodo(id, title, subTitle, completed);
+    getAllTodos();
+  };
+
+  const onRefresh = () => {
+    setIsLoading(true);
+    getAllTodos();
+    setIsLoading(false);
   };
 
   const onEndReachedHandler = () => {
-    const page = todos.length / 20 + 1;
-    console.log(page);
-    setPage(page);
-    useTodos;
+    // const page = todos.length / 20 + 1;
+    console.log('reach page');
+    getMoreTodos(++counter);
+    // setPage(page);
+    // useTodos;
   };
 
   const ListItem = ({todo}) => {
     return (
       <View style={styles.listItem}>
         <View style={{flex: 1, flexDirection: 'column'}}>
-          <Text style={styles.bigText}>ID: {todo.id}</Text>
-          <Text style={styles.smallText}>{todo.title}</Text>
+          <Text style={styles.bigText}>
+            ID: {todo.id} - {todo.title}
+          </Text>
+          <Text style={styles.smallText}>{todo.subTitle}</Text>
         </View>
-        <TouchableOpacity style={[styles.actionIcon]}>
+        <TouchableOpacity
+          style={[styles.actionIcon]}
+          onPress={() =>
+            onIconClicked(todo.id, todo.title, todo.subTitle, todo.completed)
+          }>
           {todo.completed ? (
             <Icon name={'checkbox-active'} solid size={20} color="black" />
           ) : (
@@ -73,8 +113,12 @@ const Todo = ({navigation}) => {
           <FlatList
             data={doneTodo}
             renderItem={({item}) => <ListItem todo={item} />}
+            refreshControl={
+              <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
+            }
             onEndReached={onEndReachedHandler}
-            ListFooterComponent={() => <Text>Loading....</Text>}
+            onEndReachedThreshold={0}
+            ListFooterComponent={() => <ActivityIndicator />}
           />
         </View>
       ) : (
@@ -82,8 +126,12 @@ const Todo = ({navigation}) => {
           <FlatList
             data={notDoneTodo}
             renderItem={({item}) => <ListItem todo={item} />}
+            refreshControl={
+              <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
+            }
             onEndReached={onEndReachedHandler}
-            ListFooterComponent={() => <Text>Loading....</Text>}
+            onEndReachedThreshold={0}
+            ListFooterComponent={() => <ActivityIndicator />}
           />
         </View>
       )}
@@ -163,6 +211,9 @@ const styles = StyleSheet.create({
     marginVertical: 9,
     width: 350,
     elevation: 3,
+  },
+  indicator: {
+    alignItems: 'center',
   },
 });
 
