@@ -1,20 +1,34 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   TextInput,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Fontisto';
 import LinearGradient from 'react-native-linear-gradient';
+import {addTodo} from '../../services/todo';
 
 const TodoCreate = ({navigation}) => {
+  const [titleInput, setTitleInput] = useState('');
+  const [subTitleInput, setSubTitleInput] = useState('');
+
   const onBackPressHandler = () => {
     navigation.goBack();
   };
 
-  const onAddTodoPressHandler = () => {};
+  const onAddTodoPressHandler = () => {
+    if (titleInput === '' || subTitleInput === '') {
+      Alert.alert('Error', 'Please input data!');
+    } else {
+      addTodo(titleInput, subTitleInput);
+      Alert.alert('Success', 'Todo added successfully!');
+      setTitleInput('');
+      setSubTitleInput('');
+    }
+  };
 
   return (
     <LinearGradient
@@ -30,9 +44,19 @@ const TodoCreate = ({navigation}) => {
       </TouchableOpacity>
 
       <View style={styles.body}>
-        <TextInput placeholder="TODO Title" style={styles.textInput} />
-        <TextInput placeholder="TODO SubTitle" style={styles.textInput} />
-        <TouchableOpacity style={styles.button}>
+        <TextInput
+          placeholder="TODO Title"
+          value={titleInput}
+          onChangeText={text => setTitleInput(text)}
+          style={styles.textInput}
+        />
+        <TextInput
+          placeholder="TODO SubTitle"
+          value={subTitleInput}
+          onChangeText={text => setSubTitleInput(text)}
+          style={styles.textInput}
+        />
+        <TouchableOpacity style={styles.button} onPress={onAddTodoPressHandler}>
           <Text style={{color: '#9A9CCE', fontSize: 20, fontWeight: 'bold'}}>
             Add Todo
           </Text>
