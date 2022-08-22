@@ -2,8 +2,6 @@
 
 import {useEffect, useState, useCallback} from 'react';
 
-const BASE_URL = 'https://todos-app-server1.herokuapp.com/posts';
-
 export const addTodo = async (title, subTitle) => {
   try {
     const req = {
@@ -28,7 +26,7 @@ export const useTodos = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        'https://todos-app-server1.herokuapp.com/todos?_limit=20&_page=1',
+        'https://todos-app-server1.herokuapp.com/todos?_limit=15&_page=1',
       );
       const data = await response.json();
       setTodos(data);
@@ -38,19 +36,21 @@ export const useTodos = () => {
     }
   }, []);
 
-  const getMoreTodos = useCallback(async p => {
-    console.log(p);
-    // setIsLoading(true);
-    // try {
-    //   const response = await fetch(
-    //     `https://todos-app-server1.herokuapp.com/todos?_limit=10&_page=${p}`,
-    //   );
-    //   const data = await response.json();
-    //   setTodos(prev => prev.concat(data));
-    //   setIsLoading(false);
-    // } catch (err) {
-    //   setIsLoading(false);
-    // }
+  const getMoreTodos = useCallback(async currentPage => {
+    console.log(currentPage);
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `https://todos-app-server1.herokuapp.com/todos?_limit=15&_page=${currentPage}`,
+      );
+      const data = await response.json();
+      if (data !== 0) {
+        setTodos(prev => prev.concat(data));
+      } else {
+        setIsLoading(false);
+      }
+    } catch (err) {}
+    setIsLoading(false);
   }, []);
 
   const updateTodo = async (id, title, subTitle, completed) => {
@@ -79,7 +79,7 @@ export const useTodos = () => {
   // const getAllTodos = useCallback(async () => {
   //   setIsLoading(true);
   //   try {
-  //     const res = await fetch(`${BASE_URL}/todos?_limit=10&_page=${page}`);
+  //     const res = await fetch(`${BASE_URL}/todos?_limit=15&_page=${page}`);
   //     const data = await res.json();
 
   //     setTodos(prev => prev.concat(data));

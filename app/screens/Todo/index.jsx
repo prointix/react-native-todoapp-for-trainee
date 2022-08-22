@@ -21,23 +21,18 @@ const Todo = ({navigation}) => {
     updateTodo,
     getMoreTodos,
   } = useTodos(1);
+  const [currentPage, setCurrentPage] = useState(2);
   const [tab, setTab] = useState('TODOs'); // todos or done
   const doneTodo = todos.filter(status => status.completed);
-  const notDoneTodo = todos.filter(status => !status.completed);
-  var counter = 1;
 
   const onDonePressHandler = () => {
+    setCurrentPage(2);
     setTab('DONE');
-    setIsLoading(true);
-    getAllTodos();
-    setIsLoading(false);
   };
 
   const onTodoPressHandler = () => {
+    setCurrentPage(2);
     setTab('TODOs');
-    setIsLoading(true);
-    getAllTodos();
-    setIsLoading(false);
   };
 
   const onIconClicked = (id, title, subTitle, completed) => {
@@ -54,7 +49,8 @@ const Todo = ({navigation}) => {
   const onEndReachedHandler = () => {
     // const page = todos.length / 20 + 1;
     console.log('reach page');
-    getMoreTodos(++counter);
+    setCurrentPage(currentPage + 1);
+    getMoreTodos(currentPage);
     // setPage(page);
     // useTodos;
   };
@@ -108,10 +104,10 @@ const Todo = ({navigation}) => {
           </Text>
         </TouchableOpacity>
       </View>
-      {tab === 'DONE' ? (
+      {
         <View style={styles.body}>
           <FlatList
-            data={doneTodo}
+            data={tab === 'DONE' ? doneTodo : todos}
             renderItem={({item}) => <ListItem todo={item} />}
             refreshControl={
               <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
@@ -121,20 +117,35 @@ const Todo = ({navigation}) => {
             ListFooterComponent={() => <ActivityIndicator />}
           />
         </View>
-      ) : (
-        <View style={styles.body}>
-          <FlatList
-            data={notDoneTodo}
-            renderItem={({item}) => <ListItem todo={item} />}
-            refreshControl={
-              <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
-            }
-            onEndReached={onEndReachedHandler}
-            onEndReachedThreshold={0}
-            ListFooterComponent={() => <ActivityIndicator />}
-          />
-        </View>
-      )}
+        /* tab === 'DONE' ? (
+          <View style={styles.body}>
+            <FlatList
+              data={doneTodo}
+              renderItem={({item}) => <ListItem todo={item} />}
+              refreshControl={
+                <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
+              }
+              onEndReached={onEndReachedHandler}
+              onEndReachedThreshold={0}
+              ListFooterComponent={() => <ActivityIndicator />}
+            />
+          </View>
+        ) : (
+          <View style={styles.body}>
+            <FlatList
+              data={todos}
+              renderItem={({item}) => <ListItem todo={item} />}
+              refreshControl={
+                <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
+              }
+              onEndReached={onEndReachedHandler}
+              onEndReachedThreshold={0}
+              ListFooterComponent={() => <ActivityIndicator />}
+            />
+          </View>
+        ) */
+      }
+
       <TouchableOpacity style={styles.button} onPress={onAddPressHandler}>
         <Icon name="plus-a" size={20} />
       </TouchableOpacity>
@@ -149,12 +160,12 @@ const styles = StyleSheet.create({
   },
   bigText: {
     fontWeight: 'bold',
-    fontSize: 20,
+    fontSize: 25,
     color: 'black',
   },
   smallText: {
     fontWeight: 'bold',
-    fontSize: 12,
+    fontSize: 15,
     color: 'black',
   },
   header: {
