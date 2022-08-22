@@ -18,6 +18,14 @@ export const addTodo = async (title, subTitle) => {
   } catch (error) {}
 };
 
+export const deleteTodo = async id => {
+  try {
+    await fetch(`https://todos-app-server1.herokuapp.com/todos/${id}`, {
+      method: 'DELETE',
+    });
+  } catch (error) {}
+};
+
 export const useTodos = () => {
   const [todos, setTodos] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,7 +64,6 @@ export const useTodos = () => {
 
   const updateTodo = async (id, title, subTitle, completed) => {
     setIsLoading(true);
-    const isCompleted = !completed;
     try {
       const req = {
         method: 'put',
@@ -64,7 +71,7 @@ export const useTodos = () => {
         body: JSON.stringify({
           title: title,
           subTitle: subTitle,
-          completed: isCompleted,
+          completed: completed,
         }),
       };
 

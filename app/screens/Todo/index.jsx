@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import {
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
   FlatList,
@@ -12,9 +11,17 @@ import {
 import Icon from 'react-native-vector-icons/Fontisto';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTodos} from '../../services/todo';
+import {ListItem} from './ListItem';
+import {Header} from './Header';
 
 const Todo = ({navigation}) => {
-  const {todos, getAllTodos, isLoading, updateTodo, getMoreTodos} = useTodos(1);
+  const {
+    todos,
+    getAllTodos,
+    isLoading,
+    updateTodo,
+    getMoreTodos,
+  } = useTodos();
   const [currentPage, setCurrentPage] = useState(2);
   const [tab, setTab] = useState('TODOs'); // todos or done
   const doneTodo = todos.filter(status => status.completed);
@@ -32,8 +39,18 @@ const Todo = ({navigation}) => {
     setTab('TODOs');
   };
 
+  const onItemPressHandler = (id, title, subTitle, completed) => {
+    navigation.navigate('TodoEdit', {
+      itemId: id,
+      itemTitle: title,
+      itemSubTitle: subTitle,
+      itemCompleted: completed,
+    });
+  };
+
   const onIconClicked = (id, title, subTitle, completed) => {
-    updateTodo(id, title, subTitle, completed);
+    const isCompleted = !completed;
+    updateTodo(id, title, subTitle, isCompleted);
     getAllTodos();
   };
 
@@ -54,30 +71,6 @@ const Todo = ({navigation}) => {
     return <View>{isLoading ? <ActivityIndicator /> : null}</View>;
   };
 
-  const ListItem = ({todo}) => {
-    return (
-      <View style={styles.listItem}>
-        <View style={{flex: 1, flexDirection: 'column'}}>
-          <Text style={styles.bigText}>
-            ID: {todo.id} - {todo.title}
-          </Text>
-          <Text style={styles.smallText}>{todo.subTitle}</Text>
-        </View>
-        <TouchableOpacity
-          style={[styles.actionIcon]}
-          onPress={() =>
-            onIconClicked(todo.id, todo.title, todo.subTitle, todo.completed)
-          }>
-          {todo.completed ? (
-            <Icon name={'checkbox-active'} solid size={20} color="black" />
-          ) : (
-            <Icon name={'checkbox-passive'} solid size={20} color="black" />
-          )}
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
   const onAddPressHandler = () => {
     navigation.navigate('TodoCreate');
   };
@@ -89,30 +82,36 @@ const Todo = ({navigation}) => {
       end={{x: 1.0, y: 1.0}}
       style={styles.container}>
       <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => onTodoPressHandler()}>
-            <Text
-              style={
-                tab === 'TODOs' ? styles.focusedText : styles.unFocusedText
-              }>
-              TODO
-            </Text>
-          </TouchableOpacity>
-          <Text style={styles.bigText}>|</Text>
-          <TouchableOpacity onPress={() => onDonePressHandler()}>
-            <Text
-              style={
-                tab === 'DONE' ? styles.focusedText : styles.unFocusedText
-              }>
-              DONE
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <Header
+          tab={tab}
+          onTodoPress={onTodoPressHandler}
+          onDonePress={onDonePressHandler}
+        />
         {
           <View style={styles.body}>
             <FlatList
               data={tab === 'DONE' ? doneTodo : todos}
-              renderItem={({item}) => <ListItem todo={item} />}
+              renderItem={({item}) => (
+                <ListItem
+                  todo={item}
+                  onPress={() => {
+                    onIconClicked(
+                      item.id,
+                      item.title,
+                      item.subTitle,
+                      item.completed,
+                    );
+                  }}
+                  onItemPress={() => {
+                    onItemPressHandler(
+                      item.id,
+                      item.title,
+                      item.subTitle,
+                      item.completed,
+                    );
+                  }}
+                />
+              )}
               refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
               }
@@ -129,38 +128,6 @@ const Todo = ({navigation}) => {
               onEndReachedThreshold={0.1}
             />
           </View>
-          /* tab === 'DONE' ? (
-            <View style={styles.body}>
-              <FlatList
-                data={doneTodo}
-                renderItem={({item}) => <ListItem todo={item} />}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={isLoading}
-                    onRefresh={onRefresh}
-                  />
-                }
-                onEndReached={onEndReachedHandler}
-                onEndReachedThreshold={0}
-                ListFooterComponent={renderLoader}
-              />
-            </View>
-          ) : (
-            <View style={styles.body}>
-              <FlatList
-                data={todos}
-                renderItem={({item}) => <ListItem todo={item} />}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={isLoading}
-                    onRefresh={onRefresh}
-                  />
-                }
-                onEndReached={onEndReachedHandler}
-                onEndReachedThreshold={0}
-                ListFooterComponent={renderLoader}
-              />
-            </View> */
         }
 
         <TouchableOpacity style={styles.button} onPress={onAddPressHandler}>
@@ -174,35 +141,6 @@ const Todo = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  bigText: {
-    fontWeight: 'bold',
-    fontSize: 25,
-    color: 'black',
-  },
-  smallText: {
-    fontWeight: 'bold',
-    fontSize: 15,
-    color: 'black',
-  },
-  header: {
-    padding: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-    backgroundColor: '#9395D3',
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-  },
-  focusedText: {
-    fontWeight: 'bold',
-    textDecorationLine: 'underline',
-    fontSize: 30,
-    color: '#fff',
-  },
-  unFocusedText: {
-    fontSize: 30,
-    color: '#fff',
   },
   body: {
     flex: 1,
@@ -219,24 +157,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 5,
-  },
-  actionIcon: {
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    borderRadius: 3,
-    alignSelf: 'center',
-    marginLeft: 5,
-    marginRight: 5,
-  },
-  listItem: {
-    padding: 10,
-    backgroundColor: 'white',
-    flexDirection: 'row',
-    borderRadius: 7,
-    marginVertical: 9,
-    elevation: 3,
-    marginHorizontal: 20,
   },
   indicator: {
     alignItems: 'center',

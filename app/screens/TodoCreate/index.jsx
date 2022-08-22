@@ -82,9 +82,7 @@ const TodoCreate = ({navigation}) => {
           <TouchableOpacity
             style={styles.button}
             onPress={onAddTodoPressHandler}>
-            <Text style={{color: '#9A9CCE', fontSize: 20, fontWeight: 'bold'}}>
-              Add Todo
-            </Text>
+            <Text style={styles.buttonText}>Add Todo</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -167,6 +165,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     elevation: 5,
     alignSelf: 'center',
+  },
+  buttonText: {
+    color: '#9A9CCE',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });
 
