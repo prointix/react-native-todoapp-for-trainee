@@ -37,20 +37,21 @@ export const useTodos = () => {
   }, []);
 
   const getMoreTodos = useCallback(async currentPage => {
-    console.log(currentPage);
     setIsLoading(true);
+    console.log(currentPage);
     try {
       const response = await fetch(
         `https://todos-app-server1.herokuapp.com/todos?_limit=15&_page=${currentPage}`,
       );
       const data = await response.json();
-      if (data !== 0) {
+      if (data.length > 0) {
         setTodos(prev => prev.concat(data));
-      } else {
+      } else if (data.length === 0) {
+        console.log('os hz');
         setIsLoading(false);
       }
+      setIsLoading(false);
     } catch (err) {}
-    setIsLoading(false);
   }, []);
 
   const updateTodo = async (id, title, subTitle, completed) => {
@@ -73,7 +74,10 @@ export const useTodos = () => {
   };
 
   useEffect(() => {
+    console.log('use effect');
     getAllTodos();
+
+    return () => {};
   }, [getAllTodos]);
 
   // const getAllTodos = useCallback(async () => {

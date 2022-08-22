@@ -7,31 +7,28 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  SafeAreaView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Fontisto';
 import LinearGradient from 'react-native-linear-gradient';
 import {useTodos} from '../../services/todo';
 
 const Todo = ({navigation}) => {
-  const {
-    todos,
-    getAllTodos,
-    setIsLoading,
-    isLoading,
-    updateTodo,
-    getMoreTodos,
-  } = useTodos(1);
+  const {todos, getAllTodos, isLoading, updateTodo, getMoreTodos} = useTodos(1);
   const [currentPage, setCurrentPage] = useState(2);
   const [tab, setTab] = useState('TODOs'); // todos or done
   const doneTodo = todos.filter(status => status.completed);
+  const [refreshing, setRefreshing] = useState(false);
+  const [
+    onEndReachedCalledDuringMomentum,
+    setOnEndReachedCalledDuringMomentum,
+  ] = useState(false);
 
   const onDonePressHandler = () => {
-    setCurrentPage(2);
     setTab('DONE');
   };
 
   const onTodoPressHandler = () => {
-    setCurrentPage(2);
     setTab('TODOs');
   };
 
@@ -41,18 +38,19 @@ const Todo = ({navigation}) => {
   };
 
   const onRefresh = () => {
-    setIsLoading(true);
+    setRefreshing(true);
     getAllTodos();
-    setIsLoading(false);
+    setRefreshing(false);
   };
 
   const onEndReachedHandler = () => {
-    // const page = todos.length / 20 + 1;
     console.log('reach page');
     setCurrentPage(currentPage + 1);
     getMoreTodos(currentPage);
-    // setPage(page);
-    // useTodos;
+  };
+
+  const renderLoader = () => {
+    return <View>{isLoading ? <ActivityIndicator /> : null}</View>;
   };
 
   const ListItem = ({todo}) => {
@@ -89,66 +87,85 @@ const Todo = ({navigation}) => {
       start={{x: 0.0, y: 0.0}}
       end={{x: 1.0, y: 1.0}}
       style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => onTodoPressHandler()}>
-          <Text
-            style={tab === 'TODOs' ? styles.focusedText : styles.unFocusedText}>
-            TODO
-          </Text>
-        </TouchableOpacity>
-        <Text style={styles.bigText}>|</Text>
-        <TouchableOpacity onPress={() => onDonePressHandler()}>
-          <Text
-            style={tab === 'DONE' ? styles.focusedText : styles.unFocusedText}>
-            DONE
-          </Text>
-        </TouchableOpacity>
-      </View>
-      {
-        <View style={styles.body}>
-          <FlatList
-            data={tab === 'DONE' ? doneTodo : todos}
-            renderItem={({item}) => <ListItem todo={item} />}
-            refreshControl={
-              <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
-            }
-            onEndReached={onEndReachedHandler}
-            onEndReachedThreshold={0}
-            ListFooterComponent={() => <ActivityIndicator />}
-          />
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => onTodoPressHandler()}>
+            <Text
+              style={
+                tab === 'TODOs' ? styles.focusedText : styles.unFocusedText
+              }>
+              TODO
+            </Text>
+          </TouchableOpacity>
+          <Text style={styles.bigText}>|</Text>
+          <TouchableOpacity onPress={() => onDonePressHandler()}>
+            <Text
+              style={
+                tab === 'DONE' ? styles.focusedText : styles.unFocusedText
+              }>
+              DONE
+            </Text>
+          </TouchableOpacity>
         </View>
-        /* tab === 'DONE' ? (
+        {
           <View style={styles.body}>
             <FlatList
-              data={doneTodo}
+              data={tab === 'DONE' ? doneTodo : todos}
               renderItem={({item}) => <ListItem todo={item} />}
               refreshControl={
-                <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
               }
-              onEndReached={onEndReachedHandler}
-              onEndReachedThreshold={0}
-              ListFooterComponent={() => <ActivityIndicator />}
+              ListFooterComponent={renderLoader}
+              onMomentumScrollBegin={() =>
+                setOnEndReachedCalledDuringMomentum(false)
+              }
+              onEndReached={() => {
+                if (!onEndReachedCalledDuringMomentum) {
+                  onEndReachedHandler();
+                  setOnEndReachedCalledDuringMomentum(true);
+                }
+              }}
+              onEndReachedThreshold={0.1}
             />
           </View>
-        ) : (
-          <View style={styles.body}>
-            <FlatList
-              data={todos}
-              renderItem={({item}) => <ListItem todo={item} />}
-              refreshControl={
-                <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
-              }
-              onEndReached={onEndReachedHandler}
-              onEndReachedThreshold={0}
-              ListFooterComponent={() => <ActivityIndicator />}
-            />
-          </View>
-        ) */
-      }
+          /* tab === 'DONE' ? (
+            <View style={styles.body}>
+              <FlatList
+                data={doneTodo}
+                renderItem={({item}) => <ListItem todo={item} />}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={isLoading}
+                    onRefresh={onRefresh}
+                  />
+                }
+                onEndReached={onEndReachedHandler}
+                onEndReachedThreshold={0}
+                ListFooterComponent={renderLoader}
+              />
+            </View>
+          ) : (
+            <View style={styles.body}>
+              <FlatList
+                data={todos}
+                renderItem={({item}) => <ListItem todo={item} />}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={isLoading}
+                    onRefresh={onRefresh}
+                  />
+                }
+                onEndReached={onEndReachedHandler}
+                onEndReachedThreshold={0}
+                ListFooterComponent={renderLoader}
+              />
+            </View> */
+        }
 
-      <TouchableOpacity style={styles.button} onPress={onAddPressHandler}>
-        <Icon name="plus-a" size={20} />
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={onAddPressHandler}>
+          <Icon name="plus-a" size={20} />
+        </TouchableOpacity>
+      </SafeAreaView>
     </LinearGradient>
   );
 };
@@ -156,7 +173,6 @@ const Todo = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#9395D3',
   },
   bigText: {
     fontWeight: 'bold',
