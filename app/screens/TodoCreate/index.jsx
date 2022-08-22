@@ -48,11 +48,11 @@ const TodoCreate = ({navigation}) => {
       style={styles.container}>
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
+          <TouchableOpacity style={styles.icon} onPress={onBackPressHandler}>
+            <Icon name="arrow-left" size={20} color="#fff" />
+          </TouchableOpacity>
           <Text style={styles.headerText}>ADD TODO</Text>
         </View>
-        <TouchableOpacity style={styles.icon} onPress={onBackPressHandler}>
-          <Icon name="arrow-left" size={20} color="#fff" />
-        </TouchableOpacity>
 
         <View style={styles.body}>
           <TextInput

@@ -39,6 +39,7 @@ const Todo = ({navigation}) => {
 
   const onRefresh = () => {
     setRefreshing(true);
+    setCurrentPage(2);
     getAllTodos();
     setRefreshing(false);
   };
@@ -206,8 +207,6 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     marginTop: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   button: {
     width: 60,
@@ -236,8 +235,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderRadius: 7,
     marginVertical: 9,
-    width: 350,
     elevation: 3,
+    marginHorizontal: 20,
   },
   indicator: {
     alignItems: 'center',
