@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
+  SafeAreaView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Fontisto';
 import LinearGradient from 'react-native-linear-gradient';
@@ -14,19 +15,28 @@ import {addTodo} from '../../services/todo';
 const TodoCreate = ({navigation}) => {
   const [titleInput, setTitleInput] = useState('');
   const [subTitleInput, setSubTitleInput] = useState('');
+  const [titleInputError, setTitleInputError] = useState('');
+  const [subTitleInputError, setSubTitleInputError] = useState('');
 
   const onBackPressHandler = () => {
     navigation.goBack();
   };
 
   const onAddTodoPressHandler = () => {
-    if (titleInput === '' || subTitleInput === '') {
-      Alert.alert('Error', 'Please input data!');
+    if (titleInput === '' && subTitleInput === '') {
+      setTitleInputError('Title is required');
+      setSubTitleInputError('Subtitle is required');
+    } else if (titleInput === '') {
+      setTitleInputError('Title is required');
+    } else if (subTitleInput === '') {
+      setSubTitleInputError('Subtitle is required');
     } else {
       addTodo(titleInput, subTitleInput);
       Alert.alert('Success', 'Todo added successfully!');
       setTitleInput('');
+      setTitleInputError('');
       setSubTitleInput('');
+      setSubTitleInputError('');
     }
   };
 
@@ -36,32 +46,48 @@ const TodoCreate = ({navigation}) => {
       start={{x: 0.0, y: 0.0}}
       end={{x: 1.0, y: 1.0}}
       style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>ADD TODO</Text>
-      </View>
-      <TouchableOpacity style={styles.icon} onPress={onBackPressHandler}>
-        <Icon name="arrow-left" size={20} color="#fff" />
-      </TouchableOpacity>
-
-      <View style={styles.body}>
-        <TextInput
-          placeholder="TODO Title"
-          value={titleInput}
-          onChangeText={text => setTitleInput(text)}
-          style={styles.textInput}
-        />
-        <TextInput
-          placeholder="TODO SubTitle"
-          value={subTitleInput}
-          onChangeText={text => setSubTitleInput(text)}
-          style={styles.textInput}
-        />
-        <TouchableOpacity style={styles.button} onPress={onAddTodoPressHandler}>
-          <Text style={{color: '#9A9CCE', fontSize: 20, fontWeight: 'bold'}}>
-            Add Todo
-          </Text>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>ADD TODO</Text>
+        </View>
+        <TouchableOpacity style={styles.icon} onPress={onBackPressHandler}>
+          <Icon name="arrow-left" size={20} color="#fff" />
         </TouchableOpacity>
-      </View>
+
+        <View style={styles.body}>
+          <TextInput
+            placeholder="TODO Title"
+            value={titleInput}
+            onChangeText={text => {
+              setTitleInput(text);
+              text === ''
+                ? setTitleInputError('Title is required')
+                : setTitleInputError('');
+            }}
+            style={styles.textInput}
+          />
+          <Text style={styles.errorText}>{titleInputError}</Text>
+          <TextInput
+            placeholder="TODO SubTitle"
+            value={subTitleInput}
+            onChangeText={text => {
+              setSubTitleInput(text);
+              text === ''
+                ? setSubTitleInputError('Subtitle is required')
+                : setSubTitleInputError('');
+            }}
+            style={styles.textInput}
+          />
+          <Text style={styles.errorText}>{subTitleInputError}</Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={onAddTodoPressHandler}>
+            <Text style={{color: '#9A9CCE', fontSize: 20, fontWeight: 'bold'}}>
+              Add Todo
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     </LinearGradient>
   );
 };
@@ -69,7 +95,6 @@ const TodoCreate = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#C2C3F4',
   },
   header: {
     padding: 15,
@@ -88,7 +113,7 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    marginHorizontal: 25,
   },
   bigText: {
     fontWeight: 'bold',
@@ -110,6 +135,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     color: 'black',
   },
+  errorText: {
+    alignSelf: 'flex-start',
+    color: 'red',
+    fontSize: 18,
+  },
   textInputContainer: {
     padding: 5,
     flexDirection: 'row',
@@ -121,11 +151,11 @@ const styles = StyleSheet.create({
   textInput: {
     borderBottomColor: '#fff',
     borderBottomWidth: 2,
-    width: '90%',
+    width: '100%',
     justifyContent: 'center',
     alignContent: 'center',
     fontSize: 20,
-    marginVertical: 15,
+    marginTop: 20,
   },
   button: {
     marginVertical: 45,
@@ -136,6 +166,7 @@ const styles = StyleSheet.create({
     padding: 10,
     shadowOpacity: 1,
     elevation: 5,
+    alignSelf: 'center',
   },
 });
 
