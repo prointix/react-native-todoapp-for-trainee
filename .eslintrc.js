@@ -7,4 +7,7 @@ module.exports = {
       modules: true,
     },
   },
+  rules: {
+    'prettier/prettier': 0,
+  },
 };
